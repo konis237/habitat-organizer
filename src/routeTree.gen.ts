@@ -15,6 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedProprietesRouteImport } from './routes/_authenticated/proprietes'
 import { Route as AuthenticatedLoyersRouteImport } from './routes/_authenticated/loyers'
 import { Route as AuthenticatedLocatairesRouteImport } from './routes/_authenticated/locataires'
+import { Route as AuthenticatedEauRouteImport } from './routes/_authenticated/eau'
 import { Route as AuthenticatedContratsRouteImport } from './routes/_authenticated/contrats'
 
 const AuthRoute = AuthRouteImport.update({
@@ -46,6 +47,11 @@ const AuthenticatedLocatairesRoute = AuthenticatedLocatairesRouteImport.update({
   path: '/locataires',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEauRoute = AuthenticatedEauRouteImport.update({
+  id: '/eau',
+  path: '/eau',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedContratsRoute = AuthenticatedContratsRouteImport.update({
   id: '/contrats',
   path: '/contrats',
@@ -56,6 +62,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/contrats': typeof AuthenticatedContratsRoute
+  '/eau': typeof AuthenticatedEauRoute
   '/locataires': typeof AuthenticatedLocatairesRoute
   '/loyers': typeof AuthenticatedLoyersRoute
   '/proprietes': typeof AuthenticatedProprietesRoute
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contrats': typeof AuthenticatedContratsRoute
+  '/eau': typeof AuthenticatedEauRoute
   '/locataires': typeof AuthenticatedLocatairesRoute
   '/loyers': typeof AuthenticatedLoyersRoute
   '/proprietes': typeof AuthenticatedProprietesRoute
@@ -73,6 +81,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/contrats': typeof AuthenticatedContratsRoute
+  '/_authenticated/eau': typeof AuthenticatedEauRoute
   '/_authenticated/locataires': typeof AuthenticatedLocatairesRoute
   '/_authenticated/loyers': typeof AuthenticatedLoyersRoute
   '/_authenticated/proprietes': typeof AuthenticatedProprietesRoute
@@ -84,16 +93,25 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/contrats'
+    | '/eau'
     | '/locataires'
     | '/loyers'
     | '/proprietes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/contrats' | '/locataires' | '/loyers' | '/proprietes' | '/'
+  to:
+    | '/auth'
+    | '/contrats'
+    | '/eau'
+    | '/locataires'
+    | '/loyers'
+    | '/proprietes'
+    | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/contrats'
+    | '/_authenticated/eau'
     | '/_authenticated/locataires'
     | '/_authenticated/loyers'
     | '/_authenticated/proprietes'
@@ -149,6 +167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLocatairesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/eau': {
+      id: '/_authenticated/eau'
+      path: '/eau'
+      fullPath: '/eau'
+      preLoaderRoute: typeof AuthenticatedEauRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/contrats': {
       id: '/_authenticated/contrats'
       path: '/contrats'
@@ -161,6 +186,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedContratsRoute: typeof AuthenticatedContratsRoute
+  AuthenticatedEauRoute: typeof AuthenticatedEauRoute
   AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRoute
   AuthenticatedLoyersRoute: typeof AuthenticatedLoyersRoute
   AuthenticatedProprietesRoute: typeof AuthenticatedProprietesRoute
@@ -169,6 +195,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedContratsRoute: AuthenticatedContratsRoute,
+  AuthenticatedEauRoute: AuthenticatedEauRoute,
   AuthenticatedLocatairesRoute: AuthenticatedLocatairesRoute,
   AuthenticatedLoyersRoute: AuthenticatedLoyersRoute,
   AuthenticatedProprietesRoute: AuthenticatedProprietesRoute,
