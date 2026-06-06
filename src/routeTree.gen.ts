@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedProprietesRouteImport } from './routes/_authenticated/proprietes'
 import { Route as AuthenticatedLocatairesRouteImport } from './routes/_authenticated/locataires'
+import { Route as AuthenticatedContratsRouteImport } from './routes/_authenticated/contrats'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -39,15 +40,22 @@ const AuthenticatedLocatairesRoute = AuthenticatedLocatairesRouteImport.update({
   path: '/locataires',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedContratsRoute = AuthenticatedContratsRouteImport.update({
+  id: '/contrats',
+  path: '/contrats',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/contrats': typeof AuthenticatedContratsRoute
   '/locataires': typeof AuthenticatedLocatairesRoute
   '/proprietes': typeof AuthenticatedProprietesRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/contrats': typeof AuthenticatedContratsRoute
   '/locataires': typeof AuthenticatedLocatairesRoute
   '/proprietes': typeof AuthenticatedProprietesRoute
   '/': typeof AuthenticatedIndexRoute
@@ -56,19 +64,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/contrats': typeof AuthenticatedContratsRoute
   '/_authenticated/locataires': typeof AuthenticatedLocatairesRoute
   '/_authenticated/proprietes': typeof AuthenticatedProprietesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/locataires' | '/proprietes'
+  fullPaths: '/' | '/auth' | '/contrats' | '/locataires' | '/proprietes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/locataires' | '/proprietes' | '/'
+  to: '/auth' | '/contrats' | '/locataires' | '/proprietes' | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/contrats'
     | '/_authenticated/locataires'
     | '/_authenticated/proprietes'
     | '/_authenticated/'
@@ -116,16 +126,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLocatairesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/contrats': {
+      id: '/_authenticated/contrats'
+      path: '/contrats'
+      fullPath: '/contrats'
+      preLoaderRoute: typeof AuthenticatedContratsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedContratsRoute: typeof AuthenticatedContratsRoute
   AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRoute
   AuthenticatedProprietesRoute: typeof AuthenticatedProprietesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedContratsRoute: AuthenticatedContratsRoute,
   AuthenticatedLocatairesRoute: AuthenticatedLocatairesRoute,
   AuthenticatedProprietesRoute: AuthenticatedProprietesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
