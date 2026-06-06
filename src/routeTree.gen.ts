@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedProprietesRouteImport } from './routes/_authenticated/proprietes'
+import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
 import { Route as AuthenticatedLoyersRouteImport } from './routes/_authenticated/loyers'
 import { Route as AuthenticatedLocatairesRouteImport } from './routes/_authenticated/locataires'
 import { Route as AuthenticatedEauRouteImport } from './routes/_authenticated/eau'
@@ -35,6 +36,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
 const AuthenticatedProprietesRoute = AuthenticatedProprietesRouteImport.update({
   id: '/proprietes',
   path: '/proprietes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPaiementsRoute = AuthenticatedPaiementsRouteImport.update({
+  id: '/paiements',
+  path: '/paiements',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedLoyersRoute = AuthenticatedLoyersRouteImport.update({
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/eau': typeof AuthenticatedEauRoute
   '/locataires': typeof AuthenticatedLocatairesRoute
   '/loyers': typeof AuthenticatedLoyersRoute
+  '/paiements': typeof AuthenticatedPaiementsRoute
   '/proprietes': typeof AuthenticatedProprietesRoute
 }
 export interface FileRoutesByTo {
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/eau': typeof AuthenticatedEauRoute
   '/locataires': typeof AuthenticatedLocatairesRoute
   '/loyers': typeof AuthenticatedLoyersRoute
+  '/paiements': typeof AuthenticatedPaiementsRoute
   '/proprietes': typeof AuthenticatedProprietesRoute
   '/': typeof AuthenticatedIndexRoute
 }
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/_authenticated/eau': typeof AuthenticatedEauRoute
   '/_authenticated/locataires': typeof AuthenticatedLocatairesRoute
   '/_authenticated/loyers': typeof AuthenticatedLoyersRoute
+  '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
   '/_authenticated/proprietes': typeof AuthenticatedProprietesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/eau'
     | '/locataires'
     | '/loyers'
+    | '/paiements'
     | '/proprietes'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
     | '/eau'
     | '/locataires'
     | '/loyers'
+    | '/paiements'
     | '/proprietes'
     | '/'
   id:
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/_authenticated/eau'
     | '/_authenticated/locataires'
     | '/_authenticated/loyers'
+    | '/_authenticated/paiements'
     | '/_authenticated/proprietes'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
@@ -153,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProprietesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/paiements': {
+      id: '/_authenticated/paiements'
+      path: '/paiements'
+      fullPath: '/paiements'
+      preLoaderRoute: typeof AuthenticatedPaiementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/loyers': {
       id: '/_authenticated/loyers'
       path: '/loyers'
@@ -189,6 +208,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEauRoute: typeof AuthenticatedEauRoute
   AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRoute
   AuthenticatedLoyersRoute: typeof AuthenticatedLoyersRoute
+  AuthenticatedPaiementsRoute: typeof AuthenticatedPaiementsRoute
   AuthenticatedProprietesRoute: typeof AuthenticatedProprietesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
@@ -198,6 +218,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEauRoute: AuthenticatedEauRoute,
   AuthenticatedLocatairesRoute: AuthenticatedLocatairesRoute,
   AuthenticatedLoyersRoute: AuthenticatedLoyersRoute,
+  AuthenticatedPaiementsRoute: AuthenticatedPaiementsRoute,
   AuthenticatedProprietesRoute: AuthenticatedProprietesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
