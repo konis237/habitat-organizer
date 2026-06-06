@@ -16,6 +16,7 @@ import { Route as AuthenticatedProprietesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
 import { Route as AuthenticatedLoyersRouteImport } from './routes/_authenticated/loyers'
 import { Route as AuthenticatedLocatairesRouteImport } from './routes/_authenticated/locataires'
+import { Route as AuthenticatedEcheancesRouteImport } from './routes/_authenticated/echeances'
 import { Route as AuthenticatedEauRouteImport } from './routes/_authenticated/eau'
 import { Route as AuthenticatedContratsRouteImport } from './routes/_authenticated/contrats'
 
@@ -53,6 +54,11 @@ const AuthenticatedLocatairesRoute = AuthenticatedLocatairesRouteImport.update({
   path: '/locataires',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEcheancesRoute = AuthenticatedEcheancesRouteImport.update({
+  id: '/echeances',
+  path: '/echeances',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEauRoute = AuthenticatedEauRouteImport.update({
   id: '/eau',
   path: '/eau',
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contrats': typeof AuthenticatedContratsRoute
   '/eau': typeof AuthenticatedEauRoute
+  '/echeances': typeof AuthenticatedEcheancesRoute
   '/locataires': typeof AuthenticatedLocatairesRoute
   '/loyers': typeof AuthenticatedLoyersRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contrats': typeof AuthenticatedContratsRoute
   '/eau': typeof AuthenticatedEauRoute
+  '/echeances': typeof AuthenticatedEcheancesRoute
   '/locataires': typeof AuthenticatedLocatairesRoute
   '/loyers': typeof AuthenticatedLoyersRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/contrats': typeof AuthenticatedContratsRoute
   '/_authenticated/eau': typeof AuthenticatedEauRoute
+  '/_authenticated/echeances': typeof AuthenticatedEcheancesRoute
   '/_authenticated/locataires': typeof AuthenticatedLocatairesRoute
   '/_authenticated/loyers': typeof AuthenticatedLoyersRoute
   '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contrats'
     | '/eau'
+    | '/echeances'
     | '/locataires'
     | '/loyers'
     | '/paiements'
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contrats'
     | '/eau'
+    | '/echeances'
     | '/locataires'
     | '/loyers'
     | '/paiements'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/contrats'
     | '/_authenticated/eau'
+    | '/_authenticated/echeances'
     | '/_authenticated/locataires'
     | '/_authenticated/loyers'
     | '/_authenticated/paiements'
@@ -186,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLocatairesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/echeances': {
+      id: '/_authenticated/echeances'
+      path: '/echeances'
+      fullPath: '/echeances'
+      preLoaderRoute: typeof AuthenticatedEcheancesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/eau': {
       id: '/_authenticated/eau'
       path: '/eau'
@@ -206,6 +225,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedContratsRoute: typeof AuthenticatedContratsRoute
   AuthenticatedEauRoute: typeof AuthenticatedEauRoute
+  AuthenticatedEcheancesRoute: typeof AuthenticatedEcheancesRoute
   AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRoute
   AuthenticatedLoyersRoute: typeof AuthenticatedLoyersRoute
   AuthenticatedPaiementsRoute: typeof AuthenticatedPaiementsRoute
@@ -216,6 +236,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedContratsRoute: AuthenticatedContratsRoute,
   AuthenticatedEauRoute: AuthenticatedEauRoute,
+  AuthenticatedEcheancesRoute: AuthenticatedEcheancesRoute,
   AuthenticatedLocatairesRoute: AuthenticatedLocatairesRoute,
   AuthenticatedLoyersRoute: AuthenticatedLoyersRoute,
   AuthenticatedPaiementsRoute: AuthenticatedPaiementsRoute,
