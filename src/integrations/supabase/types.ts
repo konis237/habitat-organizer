@@ -14,7 +14,241 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contrats: {
+        Row: {
+          created_at: string
+          date_debut: string
+          date_fin: string | null
+          eau_mensuelle: number
+          id: string
+          locataire_id: string
+          loyer_mensuel: number
+          mois_payes_avance: number
+          premier_mois_paye: boolean
+          prochaine_echeance: string
+          propriete_id: string
+          statut: string
+        }
+        Insert: {
+          created_at?: string
+          date_debut: string
+          date_fin?: string | null
+          eau_mensuelle?: number
+          id?: string
+          locataire_id: string
+          loyer_mensuel: number
+          mois_payes_avance?: number
+          premier_mois_paye?: boolean
+          prochaine_echeance: string
+          propriete_id: string
+          statut?: string
+        }
+        Update: {
+          created_at?: string
+          date_debut?: string
+          date_fin?: string | null
+          eau_mensuelle?: number
+          id?: string
+          locataire_id?: string
+          loyer_mensuel?: number
+          mois_payes_avance?: number
+          premier_mois_paye?: boolean
+          prochaine_echeance?: string
+          propriete_id?: string
+          statut?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contrats_locataire_id_fkey"
+            columns: ["locataire_id"]
+            isOneToOne: false
+            referencedRelation: "locataires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contrats_propriete_id_fkey"
+            columns: ["propriete_id"]
+            isOneToOne: false
+            referencedRelation: "proprietes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      factures_eau: {
+        Row: {
+          contrat_id: string
+          created_at: string
+          date_echeance: string
+          id: string
+          montant: number
+          montant_paye: number
+          periode: string
+          reste: number | null
+          statut: string
+        }
+        Insert: {
+          contrat_id: string
+          created_at?: string
+          date_echeance: string
+          id?: string
+          montant: number
+          montant_paye?: number
+          periode: string
+          reste?: number | null
+          statut?: string
+        }
+        Update: {
+          contrat_id?: string
+          created_at?: string
+          date_echeance?: string
+          id?: string
+          montant?: number
+          montant_paye?: number
+          periode?: string
+          reste?: number | null
+          statut?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "factures_eau_contrat_id_fkey"
+            columns: ["contrat_id"]
+            isOneToOne: false
+            referencedRelation: "contrats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locataires: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          nom: string
+          numero_cni: string | null
+          prenom: string
+          telephone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          nom: string
+          numero_cni?: string | null
+          prenom: string
+          telephone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          nom?: string
+          numero_cni?: string | null
+          prenom?: string
+          telephone?: string | null
+        }
+        Relationships: []
+      }
+      loyers: {
+        Row: {
+          contrat_id: string
+          created_at: string
+          date_echeance: string
+          id: string
+          montant: number
+          montant_paye: number
+          periode: string
+          reste: number | null
+          statut: string
+        }
+        Insert: {
+          contrat_id: string
+          created_at?: string
+          date_echeance: string
+          id?: string
+          montant: number
+          montant_paye?: number
+          periode: string
+          reste?: number | null
+          statut?: string
+        }
+        Update: {
+          contrat_id?: string
+          created_at?: string
+          date_echeance?: string
+          id?: string
+          montant?: number
+          montant_paye?: number
+          periode?: string
+          reste?: number | null
+          statut?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyers_contrat_id_fkey"
+            columns: ["contrat_id"]
+            isOneToOne: false
+            referencedRelation: "contrats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      paiements: {
+        Row: {
+          created_at: string
+          date_paiement: string
+          document_id: string
+          id: string
+          montant: number
+          observation: string | null
+          type_document: string
+        }
+        Insert: {
+          created_at?: string
+          date_paiement?: string
+          document_id: string
+          id?: string
+          montant: number
+          observation?: string | null
+          type_document: string
+        }
+        Update: {
+          created_at?: string
+          date_paiement?: string
+          document_id?: string
+          id?: string
+          montant?: number
+          observation?: string | null
+          type_document?: string
+        }
+        Relationships: []
+      }
+      proprietes: {
+        Row: {
+          adresse: string
+          created_at: string
+          id: string
+          montant_loyer: number
+          nom: string
+          statut: string
+        }
+        Insert: {
+          adresse: string
+          created_at?: string
+          id?: string
+          montant_loyer?: number
+          nom: string
+          statut?: string
+        }
+        Update: {
+          adresse?: string
+          created_at?: string
+          id?: string
+          montant_loyer?: number
+          nom?: string
+          statut?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
