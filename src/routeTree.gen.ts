@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedRevenusRouteImport } from './routes/_authenticated/revenus'
 import { Route as AuthenticatedProprietesRouteImport } from './routes/_authenticated/proprietes'
 import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
 import { Route as AuthenticatedLoyersRouteImport } from './routes/_authenticated/loyers'
@@ -32,6 +33,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRevenusRoute = AuthenticatedRevenusRouteImport.update({
+  id: '/revenus',
+  path: '/revenus',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProprietesRoute = AuthenticatedProprietesRouteImport.update({
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/loyers': typeof AuthenticatedLoyersRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/proprietes': typeof AuthenticatedProprietesRoute
+  '/revenus': typeof AuthenticatedRevenusRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/loyers': typeof AuthenticatedLoyersRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/proprietes': typeof AuthenticatedProprietesRoute
+  '/revenus': typeof AuthenticatedRevenusRoute
   '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/_authenticated/loyers': typeof AuthenticatedLoyersRoute
   '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
   '/_authenticated/proprietes': typeof AuthenticatedProprietesRoute
+  '/_authenticated/revenus': typeof AuthenticatedRevenusRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/loyers'
     | '/paiements'
     | '/proprietes'
+    | '/revenus'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/loyers'
     | '/paiements'
     | '/proprietes'
+    | '/revenus'
     | '/'
   id:
     | '__root__'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/_authenticated/loyers'
     | '/_authenticated/paiements'
     | '/_authenticated/proprietes'
+    | '/_authenticated/revenus'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
@@ -168,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/revenus': {
+      id: '/_authenticated/revenus'
+      path: '/revenus'
+      fullPath: '/revenus'
+      preLoaderRoute: typeof AuthenticatedRevenusRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/proprietes': {
@@ -230,6 +249,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLoyersRoute: typeof AuthenticatedLoyersRoute
   AuthenticatedPaiementsRoute: typeof AuthenticatedPaiementsRoute
   AuthenticatedProprietesRoute: typeof AuthenticatedProprietesRoute
+  AuthenticatedRevenusRoute: typeof AuthenticatedRevenusRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
@@ -241,6 +261,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLoyersRoute: AuthenticatedLoyersRoute,
   AuthenticatedPaiementsRoute: AuthenticatedPaiementsRoute,
   AuthenticatedProprietesRoute: AuthenticatedProprietesRoute,
+  AuthenticatedRevenusRoute: AuthenticatedRevenusRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 
