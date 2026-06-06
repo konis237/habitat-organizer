@@ -9,61 +9,269 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedRevenusRouteImport } from './routes/_authenticated/revenus'
+import { Route as AuthenticatedProprietesRouteImport } from './routes/_authenticated/proprietes'
+import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
+import { Route as AuthenticatedLoyersRouteImport } from './routes/_authenticated/loyers'
+import { Route as AuthenticatedLocatairesRouteImport } from './routes/_authenticated/locataires'
+import { Route as AuthenticatedEcheancesRouteImport } from './routes/_authenticated/echeances'
+import { Route as AuthenticatedEauRouteImport } from './routes/_authenticated/eau'
+import { Route as AuthenticatedContratsRouteImport } from './routes/_authenticated/contrats'
 
-const IndexRoute = IndexRouteImport.update({
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRevenusRoute = AuthenticatedRevenusRouteImport.update({
+  id: '/revenus',
+  path: '/revenus',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProprietesRoute = AuthenticatedProprietesRouteImport.update({
+  id: '/proprietes',
+  path: '/proprietes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPaiementsRoute = AuthenticatedPaiementsRouteImport.update({
+  id: '/paiements',
+  path: '/paiements',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLoyersRoute = AuthenticatedLoyersRouteImport.update({
+  id: '/loyers',
+  path: '/loyers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLocatairesRoute = AuthenticatedLocatairesRouteImport.update({
+  id: '/locataires',
+  path: '/locataires',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEcheancesRoute = AuthenticatedEcheancesRouteImport.update({
+  id: '/echeances',
+  path: '/echeances',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEauRoute = AuthenticatedEauRouteImport.update({
+  id: '/eau',
+  path: '/eau',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedContratsRoute = AuthenticatedContratsRouteImport.update({
+  id: '/contrats',
+  path: '/contrats',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/contrats': typeof AuthenticatedContratsRoute
+  '/eau': typeof AuthenticatedEauRoute
+  '/echeances': typeof AuthenticatedEcheancesRoute
+  '/locataires': typeof AuthenticatedLocatairesRoute
+  '/loyers': typeof AuthenticatedLoyersRoute
+  '/paiements': typeof AuthenticatedPaiementsRoute
+  '/proprietes': typeof AuthenticatedProprietesRoute
+  '/revenus': typeof AuthenticatedRevenusRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/contrats': typeof AuthenticatedContratsRoute
+  '/eau': typeof AuthenticatedEauRoute
+  '/echeances': typeof AuthenticatedEcheancesRoute
+  '/locataires': typeof AuthenticatedLocatairesRoute
+  '/loyers': typeof AuthenticatedLoyersRoute
+  '/paiements': typeof AuthenticatedPaiementsRoute
+  '/proprietes': typeof AuthenticatedProprietesRoute
+  '/revenus': typeof AuthenticatedRevenusRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/contrats': typeof AuthenticatedContratsRoute
+  '/_authenticated/eau': typeof AuthenticatedEauRoute
+  '/_authenticated/echeances': typeof AuthenticatedEcheancesRoute
+  '/_authenticated/locataires': typeof AuthenticatedLocatairesRoute
+  '/_authenticated/loyers': typeof AuthenticatedLoyersRoute
+  '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
+  '/_authenticated/proprietes': typeof AuthenticatedProprietesRoute
+  '/_authenticated/revenus': typeof AuthenticatedRevenusRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/contrats'
+    | '/eau'
+    | '/echeances'
+    | '/locataires'
+    | '/loyers'
+    | '/paiements'
+    | '/proprietes'
+    | '/revenus'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/auth'
+    | '/contrats'
+    | '/eau'
+    | '/echeances'
+    | '/locataires'
+    | '/loyers'
+    | '/paiements'
+    | '/proprietes'
+    | '/revenus'
+    | '/'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/contrats'
+    | '/_authenticated/eau'
+    | '/_authenticated/echeances'
+    | '/_authenticated/locataires'
+    | '/_authenticated/loyers'
+    | '/_authenticated/paiements'
+    | '/_authenticated/proprietes'
+    | '/_authenticated/revenus'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/revenus': {
+      id: '/_authenticated/revenus'
+      path: '/revenus'
+      fullPath: '/revenus'
+      preLoaderRoute: typeof AuthenticatedRevenusRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/proprietes': {
+      id: '/_authenticated/proprietes'
+      path: '/proprietes'
+      fullPath: '/proprietes'
+      preLoaderRoute: typeof AuthenticatedProprietesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/paiements': {
+      id: '/_authenticated/paiements'
+      path: '/paiements'
+      fullPath: '/paiements'
+      preLoaderRoute: typeof AuthenticatedPaiementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/loyers': {
+      id: '/_authenticated/loyers'
+      path: '/loyers'
+      fullPath: '/loyers'
+      preLoaderRoute: typeof AuthenticatedLoyersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/locataires': {
+      id: '/_authenticated/locataires'
+      path: '/locataires'
+      fullPath: '/locataires'
+      preLoaderRoute: typeof AuthenticatedLocatairesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/echeances': {
+      id: '/_authenticated/echeances'
+      path: '/echeances'
+      fullPath: '/echeances'
+      preLoaderRoute: typeof AuthenticatedEcheancesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/eau': {
+      id: '/_authenticated/eau'
+      path: '/eau'
+      fullPath: '/eau'
+      preLoaderRoute: typeof AuthenticatedEauRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contrats': {
+      id: '/_authenticated/contrats'
+      path: '/contrats'
+      fullPath: '/contrats'
+      preLoaderRoute: typeof AuthenticatedContratsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedContratsRoute: typeof AuthenticatedContratsRoute
+  AuthenticatedEauRoute: typeof AuthenticatedEauRoute
+  AuthenticatedEcheancesRoute: typeof AuthenticatedEcheancesRoute
+  AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRoute
+  AuthenticatedLoyersRoute: typeof AuthenticatedLoyersRoute
+  AuthenticatedPaiementsRoute: typeof AuthenticatedPaiementsRoute
+  AuthenticatedProprietesRoute: typeof AuthenticatedProprietesRoute
+  AuthenticatedRevenusRoute: typeof AuthenticatedRevenusRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedContratsRoute: AuthenticatedContratsRoute,
+  AuthenticatedEauRoute: AuthenticatedEauRoute,
+  AuthenticatedEcheancesRoute: AuthenticatedEcheancesRoute,
+  AuthenticatedLocatairesRoute: AuthenticatedLocatairesRoute,
+  AuthenticatedLoyersRoute: AuthenticatedLoyersRoute,
+  AuthenticatedPaiementsRoute: AuthenticatedPaiementsRoute,
+  AuthenticatedProprietesRoute: AuthenticatedProprietesRoute,
+  AuthenticatedRevenusRoute: AuthenticatedRevenusRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
