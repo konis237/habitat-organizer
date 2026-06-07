@@ -298,7 +298,7 @@ export const listHistoriqueLoyers = createServerFn({ method: "GET" })
         const moisPayesAvance = (c.premier_mois_paye ? 1 : 0) + Number(c.mois_payes_avance || 0);
 
         const historique: any[] = [];
-        const moisAGenerer = Math.max(moisPayesAvance + 12, 24); // avance exacte + 12 mois futur
+        const moisAGenerer = moisPayesAvance; // avance exacte + 12 mois futur
 
         for (let i = 0; i < moisAGenerer; i++) {
           const periodeDate = addMonths(new Date(c.date_debut), i);
@@ -361,7 +361,7 @@ export const listHistoriqueEau = createServerFn({ method: "GET" })
 
         const moisPayesAvance = (c.premier_mois_paye ? 1 : 0) + Number(c.mois_payes_avance || 0);
         const historique: any[] = [];
-        const moisAGenerer = Math.max(moisPayesAvance + 12, 24);
+        const moisAGenerer = moisPayesAvance;
 
         for (let i = 0; i < moisAGenerer; i++) {
           const periodeDate = addMonths(new Date(c.date_debut), i);
