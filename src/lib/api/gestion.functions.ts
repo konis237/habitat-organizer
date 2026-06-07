@@ -280,6 +280,35 @@ export const enregistrerPaiement = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// Mise à jour du montant d'une facture d'eau via index
+const eauIndexSchema = z.object({
+  id: z.string().uuid(),
+  ancien_index: z.number().nonnegative(),
+  nouveau_index: z.number().nonnegative(),
+  prix_unitaire: z.number().nonnegative(),
+});
+export const updateFactureEauIndex = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => eauIndexSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    if (data.nouveau_index < data.ancien_index) throw new Error("Le nouvel index doit être ≥ à l'ancien");
+    const conso = data.nouveau_index - data.ancien_index;
+    const montant = Math.round(conso * data.prix_unitaire);
+    const { data: ech } = await context.supabase.from("factures_eau").select("montant_paye").eq("id", data.id).single();
+    if (!ech) throw new Error("Facture introuvable");
+    const paye = Number(ech.montant_paye);
+    const reste = montant - paye;
+    const statut = reste <= 0 ? "paye" : paye > 0 ? "partiel" : "impaye";
+    const { error } = await context.supabase.from("factures_eau").update({
+      ancien_index: data.ancien_index,
+      nouveau_index: data.nouveau_index,
+      prix_unitaire: data.prix_unitaire,
+      montant, statut,
+    }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true, montant, conso };
+  });
+
 // ============ PAIEMENTS LISTING ============
 export const listPaiements = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
