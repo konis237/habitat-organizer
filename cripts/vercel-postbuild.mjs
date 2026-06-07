@@ -1,26 +1,21 @@
-// scripts/vercel-postbuild.mjs
-// Restructure dist/ → .vercel/output/ après un build Nitro preset:vercel
-import { cpSync, mkdirSync, writeFileSync, rmSync, existsSync } from "fs";
-import { join } from "path";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 
 const dist = "dist";
 const out = ".vercel/output";
 
-// Nettoie l'output précédent
 if (existsSync(out)) rmSync(out, { recursive: true });
 
-// 1. Fichiers statiques client → .vercel/output/static
+// 1. Static assets → .vercel/output/static
 mkdirSync(`${out}/static`, { recursive: true });
 cpSync(`${dist}/client`, `${out}/static`, { recursive: true });
 
-// 2. Fonction serverless → .vercel/output/functions/index.func
+// 2. Server function → .vercel/output/functions/index.func
 const fnDir = `${out}/functions/index.func`;
 mkdirSync(fnDir, { recursive: true });
 cpSync(`${dist}/server`, fnDir, { recursive: true });
 
-// Le .vc-config.json est déjà dans dist/server, on s'assure qu'il est bien là
-// Sinon on le crée
-const vcConfig = join(fnDir, ".vc-config.json");
+// Vérifie/crée le .vc-config.json
+const vcConfig = `${fnDir}/.vc-config.json`;
 if (!existsSync(vcConfig)) {
   writeFileSync(
     vcConfig,
@@ -37,23 +32,15 @@ if (!existsSync(vcConfig)) {
   );
 }
 
-// 3. Config Vercel output
+// 3. Config output Vercel v3
 writeFileSync(
   `${out}/config.json`,
   JSON.stringify(
     {
       version: 3,
       routes: [
-        // Assets statiques servis directement
-        {
-          src: "^/assets/(.*)$",
-          dest: "/assets/$1",
-        },
-        // Tout le reste → fonction SSR
-        {
-          src: "/(.*)",
-          dest: "/index",
-        },
+        { src: "^/assets/(.*)$", dest: "/assets/$1" },
+        { src: "/(.*)", dest: "/index" },
       ],
     },
     null,
@@ -61,4 +48,4 @@ writeFileSync(
   ),
 );
 
-console.log("✅ .vercel/output restructuré avec succès");
+console.log("✅ .vercel/output structuré avec succès");
