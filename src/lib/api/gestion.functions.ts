@@ -29,14 +29,12 @@ export const upsertPropriete = createServerFn({ method: "POST" })
         .eq("id", data.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await context.supabase
-        .from("proprietes")
-        .insert({
-          nom: data.nom,
-          adresse: data.adresse,
-          montant_loyer: data.montant_loyer,
-          statut: "libre",
-        });
+      const { error } = await context.supabase.from("proprietes").insert({
+        nom: data.nom,
+        adresse: data.adresse,
+        montant_loyer: data.montant_loyer,
+        statut: "libre",
+      });
       if (error) throw new Error(error.message);
     }
     return { ok: true };
@@ -275,6 +273,7 @@ export const genererEcheancesMois = createServerFn({ method: "POST" })
 
 // ============ LOYERS / EAU ============
 // ====================== HISTORIQUE LOYERS ======================
+// ====================== HISTORIQUE LOYERS ======================
 export const listHistoriqueLoyers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -296,12 +295,12 @@ export const listHistoriqueLoyers = createServerFn({ method: "GET" })
     return contrats
       .flatMap((c: any) => {
         const loyerBase = Number(c.loyer_mensuel);
-        const moisPayesAvance = (c.premier_mois_paye ? 1 : 0) + Number(c.mois_payes_avance);
+        const moisPayesAvance = (c.premier_mois_paye ? 1 : 0) + Number(c.mois_payes_avance || 0);
 
         const historique: any[] = [];
+        const moisAGenerer = Math.max(moisPayesAvance + 12, 24); // avance exacte + 12 mois futur
 
-        for (let i = 0; i < 36; i++) {
-          // 3 ans d'historique (passé + futur)
+        for (let i = 0; i < moisAGenerer; i++) {
           const periodeDate = addMonths(new Date(c.date_debut), i);
           const periode = toISO(startOfMonth(periodeDate));
 
@@ -360,10 +359,11 @@ export const listHistoriqueEau = createServerFn({ method: "GET" })
         const eauBase = Number(c.eau_mensuelle);
         if (eauBase <= 0) return [];
 
-        const moisPayesAvance = (c.premier_mois_paye ? 1 : 0) + Number(c.mois_payes_avance);
+        const moisPayesAvance = (c.premier_mois_paye ? 1 : 0) + Number(c.mois_payes_avance || 0);
         const historique: any[] = [];
+        const moisAGenerer = Math.max(moisPayesAvance + 12, 24);
 
-        for (let i = 0; i < 36; i++) {
+        for (let i = 0; i < moisAGenerer; i++) {
           const periodeDate = addMonths(new Date(c.date_debut), i);
           const periode = toISO(startOfMonth(periodeDate));
 
