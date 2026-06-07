@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { listEau, enregistrerPaiement, updateFactureEauIndex } from "@/lib/api/gestion.functions";
 import { formatFCFA, formatDate, formatPeriode } from "@/lib/format";
@@ -23,19 +23,8 @@ import { toast } from "sonner";
 function periodeISO(year: number, month: number) {
   return `${year}-${String(month).padStart(2, "0")}-01`;
 }
-function eauOpts(periode: string) {
-  return queryOptions({
-    queryKey: ["eau", periode],
-    queryFn: () => listEau({ data: { periode } }),
-  });
-}
 
 export const Route = createFileRoute("/_authenticated/eau")({
-  loader: ({ context }) => {
-    const now = new Date();
-    const p = periodeISO(now.getFullYear(), now.getMonth() + 1);
-    return context.queryClient.ensureQueryData(eauOpts(p));
-  },
   component: Page,
   errorComponent: ({ error }) => <div className="text-destructive p-4">{error.message}</div>,
 });
@@ -63,16 +52,18 @@ function Page() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const periode = periodeISO(year, month);
   const qc = useQueryClient();
-  const { data: rows } = useSuspenseQuery(eauOpts(periode)) as { data: EauRow[] };
 
-  // Dialog paiement
+  const { data: rows = [], isLoading } = useQuery({
+    queryKey: ["eau", periode],
+    queryFn: () => listEau({ data: { periode } }),
+  });
+
   const [paying, setPaying] = useState<EauRow | null>(null);
   const [montantPay, setMontantPay] = useState("");
   const [datePaiement, setDatePaiement] = useState(() => now.toISOString().slice(0, 10));
   const [obs, setObs] = useState("");
   const [loadingPay, setLoadingPay] = useState(false);
 
-  // Dialog index
   const [indexing, setIndexing] = useState<EauRow | null>(null);
   const [ancienIdx, setAncienIdx] = useState("");
   const [nouveauIdx, setNouveauIdx] = useState("");
@@ -92,14 +83,14 @@ function Page() {
     } else setMonth((m) => m + 1);
   }
 
-  const total = rows.reduce((a, r) => a + Number(r.montant), 0);
-  const totalPaye = rows.reduce((a, r) => a + Number(r.montant_paye), 0);
-  const totalReste = rows.reduce((a, r) => a + Number(r.reste), 0);
-  const payes = rows.filter((r) => r.statut === "paye").length;
-  const partiels = rows.filter((r) => r.statut === "partiel").length;
-  const impayes = rows.filter((r) => r.statut === "impaye").length;
+  const typedRows = rows as EauRow[];
+  const total = typedRows.reduce((a, r) => a + Number(r.montant), 0);
+  const totalPaye = typedRows.reduce((a, r) => a + Number(r.montant_paye), 0);
+  const totalReste = typedRows.reduce((a, r) => a + Number(r.reste), 0);
+  const payes = typedRows.filter((r) => r.statut === "paye").length;
+  const partiels = typedRows.filter((r) => r.statut === "partiel").length;
+  const impayes = typedRows.filter((r) => r.statut === "impaye").length;
 
-  // Prévisualisation calcul index
   const ancienN = parseFloat(ancienIdx);
   const nouveauN = parseFloat(nouveauIdx);
   const prixN = parseFloat(prixUnit);
@@ -147,8 +138,7 @@ function Page() {
 
   async function handleIndex(e: React.FormEvent) {
     e.preventDefault();
-    if (!indexing) return;
-    if (conso === null || montantCalc === null) {
+    if (!indexing || conso === null || montantCalc === null) {
       toast.error("Données d'index invalides");
       return;
     }
@@ -193,7 +183,6 @@ function Page() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
@@ -217,7 +206,6 @@ function Page() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "Total attendu", val: formatFCFA(total), cls: "text-foreground" },
@@ -236,14 +224,13 @@ function Page() {
         ))}
       </div>
 
-      {/* Badges */}
       <div className="flex gap-3 flex-wrap">
         <span className="inline-flex items-center gap-1.5 text-sm">
           <CheckCircle2 className="h-4 w-4 text-green-400" />
           {payes} payés
         </span>
         <span className="inline-flex items-center gap-1.5 text-sm">
-          <Clock className="h-4 w-4 text-warning" />
+          <Clock className="h-4 w-4 text-yellow-400" />
           {partiels} partiels
         </span>
         <span className="inline-flex items-center gap-1.5 text-sm">
@@ -252,9 +239,10 @@ function Page() {
         </span>
       </div>
 
-      {/* Tableau */}
       <Card className="p-0 overflow-hidden">
-        {rows.length === 0 ? (
+        {isLoading ? (
+          <div className="p-8 text-center text-muted-foreground text-sm">Chargement…</div>
+        ) : typedRows.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             Aucune facture d'eau pour {formatPeriode(periode)}
           </div>
@@ -275,9 +263,9 @@ function Page() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => {
+                {typedRows.map((r) => {
                   const hasIndex = r.ancien_index != null && r.nouveau_index != null;
-                  const conso = hasIndex ? r.nouveau_index! - r.ancien_index! : null;
+                  const consoR = hasIndex ? r.nouveau_index! - r.ancien_index! : null;
                   return (
                     <tr key={r.id} className="border-b border-border/30 hover:bg-muted/30">
                       <td className="px-4 py-3 font-medium">
@@ -291,11 +279,11 @@ function Page() {
                       <td className="px-4 py-3 text-muted-foreground text-sm hidden lg:table-cell">
                         {hasIndex ? (
                           <span className="font-mono">
-                            {r.ancien_index} → {r.nouveau_index}
-                            <span className="ml-1 text-blue-400">({conso} m³)</span>
+                            {r.ancien_index} → {r.nouveau_index}{" "}
+                            <span className="text-blue-400">({consoR} m³)</span>
                           </span>
                         ) : (
-                          <span className="text-muted-foreground/50">—</span>
+                          <span className="text-muted-foreground/40">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right font-mono">{formatFCFA(r.montant)}</td>
@@ -326,7 +314,7 @@ function Page() {
                               size="sm"
                               variant="outline"
                               onClick={() => openPay(r)}
-                              title="Enregistrer paiement"
+                              title="Paiement"
                             >
                               <Banknote className="h-3.5 w-3.5" />
                             </Button>
@@ -401,7 +389,6 @@ function Page() {
                 required
               />
             </div>
-            {/* Prévisualisation */}
             {conso !== null && montantCalc !== null && (
               <div className="rounded-md bg-blue-500/10 border border-blue-500/20 px-4 py-3 text-sm space-y-1">
                 <div className="flex justify-between">
@@ -420,10 +407,8 @@ function Page() {
                 </div>
               </div>
             )}
-            {conso !== null && conso < 0 && (
-              <p className="text-destructive text-sm">
-                Le nouvel index doit être supérieur à l'ancien
-              </p>
+            {!isNaN(ancienN) && !isNaN(nouveauN) && nouveauN < ancienN && (
+              <p className="text-destructive text-sm">Le nouvel index doit être ≥ à l'ancien</p>
             )}
             <div className="flex gap-2 justify-end">
               <Button type="button" variant="outline" onClick={() => setIndexing(null)}>
@@ -464,9 +449,8 @@ function Page() {
           )}
           <form onSubmit={handlePay} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="montant-eau">Montant (FCFA)</Label>
+              <Label>Montant (FCFA)</Label>
               <Input
-                id="montant-eau"
                 type="number"
                 min="1"
                 value={montantPay}
@@ -475,9 +459,8 @@ function Page() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="date-eau">Date de paiement</Label>
+              <Label>Date de paiement</Label>
               <Input
-                id="date-eau"
                 type="date"
                 value={datePaiement}
                 onChange={(e) => setDatePaiement(e.target.value)}
@@ -485,13 +468,8 @@ function Page() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="obs-eau">Observation (optionnel)</Label>
-              <Input
-                id="obs-eau"
-                value={obs}
-                onChange={(e) => setObs(e.target.value)}
-                placeholder="Note…"
-              />
+              <Label>Observation (optionnel)</Label>
+              <Input value={obs} onChange={(e) => setObs(e.target.value)} placeholder="Note…" />
             </div>
             <div className="flex gap-2 justify-end">
               <Button type="button" variant="outline" onClick={() => setPaying(null)}>
@@ -517,7 +495,7 @@ function StatutBadge({ statut }: { statut: string }) {
     );
   if (statut === "partiel")
     return (
-      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-warning/15 text-warning">
+      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-yellow-500/15 text-yellow-400">
         Partiel
       </span>
     );

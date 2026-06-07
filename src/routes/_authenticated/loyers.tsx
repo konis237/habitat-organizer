@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { listLoyers, enregistrerPaiement } from "@/lib/api/gestion.functions";
 import { formatFCFA, formatDate, formatPeriode } from "@/lib/format";
@@ -22,19 +22,7 @@ function periodeISO(year: number, month: number) {
   return `${year}-${String(month).padStart(2, "0")}-01`;
 }
 
-function loyersOpts(periode: string) {
-  return queryOptions({
-    queryKey: ["loyers", periode],
-    queryFn: () => listLoyers({ data: { periode } }),
-  });
-}
-
 export const Route = createFileRoute("/_authenticated/loyers")({
-  loader: ({ context }) => {
-    const now = new Date();
-    const p = periodeISO(now.getFullYear(), now.getMonth() + 1);
-    return context.queryClient.ensureQueryData(loyersOpts(p));
-  },
   component: Page,
   errorComponent: ({ error }) => <div className="text-destructive p-4">{error.message}</div>,
 });
@@ -59,10 +47,15 @@ function Page() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const periode = periodeISO(year, month);
   const qc = useQueryClient();
-  const { data: rows } = useSuspenseQuery(loyersOpts(periode)) as { data: LoyerRow[] };
+
+  const { data: rows = [], isLoading } = useQuery({
+    queryKey: ["loyers", periode],
+    queryFn: () => listLoyers({ data: { periode } }),
+  });
+
   const [paying, setPaying] = useState<LoyerRow | null>(null);
   const [montant, setMontant] = useState("");
-  const [datePaiement, setDatePaiement] = useState(() => new Date().toISOString().slice(0, 10));
+  const [datePaiement, setDatePaiement] = useState(() => now.toISOString().slice(0, 10));
   const [obs, setObs] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -79,12 +72,13 @@ function Page() {
     } else setMonth((m) => m + 1);
   }
 
-  const total = rows.reduce((a, r) => a + Number(r.montant), 0);
-  const totalPaye = rows.reduce((a, r) => a + Number(r.montant_paye), 0);
-  const totalReste = rows.reduce((a, r) => a + Number(r.reste), 0);
-  const payes = rows.filter((r) => r.statut === "paye").length;
-  const partiels = rows.filter((r) => r.statut === "partiel").length;
-  const impayes = rows.filter((r) => r.statut === "impaye").length;
+  const typedRows = rows as LoyerRow[];
+  const total = typedRows.reduce((a, r) => a + Number(r.montant), 0);
+  const totalPaye = typedRows.reduce((a, r) => a + Number(r.montant_paye), 0);
+  const totalReste = typedRows.reduce((a, r) => a + Number(r.reste), 0);
+  const payes = typedRows.filter((r) => r.statut === "paye").length;
+  const partiels = typedRows.filter((r) => r.statut === "partiel").length;
+  const impayes = typedRows.filter((r) => r.statut === "impaye").length;
 
   async function handlePay(e: React.FormEvent) {
     e.preventDefault();
@@ -126,13 +120,12 @@ function Page() {
   function openPay(r: LoyerRow) {
     setPaying(r);
     setMontant(String(r.reste));
-    setDatePaiement(new Date().toISOString().slice(0, 10));
+    setDatePaiement(now.toISOString().slice(0, 10));
     setObs("");
   }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Loyers</h1>
@@ -151,7 +144,6 @@ function Page() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "Total attendu", val: formatFCFA(total), cls: "text-foreground" },
@@ -170,14 +162,13 @@ function Page() {
         ))}
       </div>
 
-      {/* Badges statuts */}
       <div className="flex gap-3 flex-wrap">
         <span className="inline-flex items-center gap-1.5 text-sm">
           <CheckCircle2 className="h-4 w-4 text-green-400" />
           {payes} payés
         </span>
         <span className="inline-flex items-center gap-1.5 text-sm">
-          <Clock className="h-4 w-4 text-warning" />
+          <Clock className="h-4 w-4 text-yellow-400" />
           {partiels} partiels
         </span>
         <span className="inline-flex items-center gap-1.5 text-sm">
@@ -186,9 +177,10 @@ function Page() {
         </span>
       </div>
 
-      {/* Tableau */}
       <Card className="p-0 overflow-hidden">
-        {rows.length === 0 ? (
+        {isLoading ? (
+          <div className="p-8 text-center text-muted-foreground text-sm">Chargement…</div>
+        ) : typedRows.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">
             Aucun loyer pour {formatPeriode(periode)}
           </div>
@@ -208,7 +200,7 @@ function Page() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
+                {typedRows.map((r) => (
                   <tr key={r.id} className="border-b border-border/30 hover:bg-muted/30">
                     <td className="px-4 py-3 font-medium">
                       {r.contrat?.locataire
@@ -247,7 +239,6 @@ function Page() {
         )}
       </Card>
 
-      {/* Dialog paiement */}
       <Dialog open={!!paying} onOpenChange={(o) => !o && setPaying(null)}>
         <DialogContent>
           <DialogHeader>
@@ -271,9 +262,8 @@ function Page() {
           )}
           <form onSubmit={handlePay} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="montant-loyer">Montant (FCFA)</Label>
+              <Label>Montant (FCFA)</Label>
               <Input
-                id="montant-loyer"
                 type="number"
                 min="1"
                 value={montant}
@@ -282,9 +272,8 @@ function Page() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="date-loyer">Date de paiement</Label>
+              <Label>Date de paiement</Label>
               <Input
-                id="date-loyer"
                 type="date"
                 value={datePaiement}
                 onChange={(e) => setDatePaiement(e.target.value)}
@@ -292,13 +281,8 @@ function Page() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="obs-loyer">Observation (optionnel)</Label>
-              <Input
-                id="obs-loyer"
-                value={obs}
-                onChange={(e) => setObs(e.target.value)}
-                placeholder="Note…"
-              />
+              <Label>Observation (optionnel)</Label>
+              <Input value={obs} onChange={(e) => setObs(e.target.value)} placeholder="Note…" />
             </div>
             <div className="flex gap-2 justify-end">
               <Button type="button" variant="outline" onClick={() => setPaying(null)}>
@@ -324,7 +308,7 @@ function StatutBadge({ statut }: { statut: string }) {
     );
   if (statut === "partiel")
     return (
-      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-warning/15 text-warning">
+      <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-yellow-500/15 text-yellow-400">
         Partiel
       </span>
     );
