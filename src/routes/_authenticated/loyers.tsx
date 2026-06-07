@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { listContrats, listEcheances, enregistrerPaiement } from "@/lib/api/gestion.functions";
-import { formatFCFA, formatDate, formatPeriode } from "@/lib/format";
+import { listHistoriqueLoyers, enregistrerPaiement } from "@/lib/api/gestion.functions";
+import { formatFCFA, formatPeriode } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,46 +15,22 @@ export const Route = createFileRoute("/_authenticated/loyers")({
   component: Page,
 });
 
-type LoyerRow = {
-  id: string;
-  periode: string;
-  montant: number;
-  montant_paye: number;
-  reste: number;
-  date_echeance: string;
-  statut: string;
-  contrat: {
-    id: string;
-    propriete?: { nom: string };
-    locataire?: { nom: string; prenom: string };
-  };
-};
-
 function Page() {
   const qc = useQueryClient();
-  const [paying, setPaying] = useState<LoyerRow | null>(null);
+  const [paying, setPaying] = useState<any>(null);
   const [montant, setMontant] = useState("");
   const [datePaiement, setDatePaiement] = useState(() => new Date().toISOString().slice(0, 10));
   const [obs, setObs] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Récupération de tous les loyers non totalement payés + historique
-  const { data: allEcheances = [] } = useQuery({
-    queryKey: ["loyers-historique"],
-    queryFn: () => listEcheances(), // On réutilise la fonction qui ramène tout
+  const { data: loyers = [], isLoading } = useQuery({
+    queryKey: ["historique-loyers"],
+    queryFn: () => listHistoriqueLoyers(),
   });
 
-  const loyers = allEcheances
-    .filter((e: any) => e.type === "loyer")
-    .sort((a, b) => new Date(a.date_echeance).getTime() - new Date(b.date_echeance).getTime());
-
-  const total = loyers.reduce((a, r) => a + Number(r.montant), 0);
-  const totalPaye = loyers.reduce((a, r) => a + Number(r.montant_paye), 0);
-  const totalReste = loyers.reduce((a, r) => a + Number(r.reste), 0);
-
-  const payes = loyers.filter((r) => r.statut === "paye").length;
-  const partiels = loyers.filter((r) => r.statut === "partiel").length;
-  const impayes = loyers.filter((r) => r.statut === "impaye").length;
+  const total = loyers.reduce((a: number, r: any) => a + Number(r.montant), 0);
+  const totalPaye = loyers.reduce((a: number, r: any) => a + Number(r.montant_paye), 0);
+  const totalReste = loyers.reduce((a: number, r: any) => a + Number(r.reste), 0);
 
   async function handlePay(e: React.FormEvent) {
     e.preventDefault();
@@ -73,10 +49,8 @@ function Page() {
           observation: obs || null,
         },
       });
-      toast.success("Paiement enregistré");
-      qc.invalidateQueries({ queryKey: ["loyers-historique"] });
-      qc.invalidateQueries({ queryKey: ["echeances"] });
-      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      toast.success("Paiement enregistré avec succès");
+      qc.invalidateQueries({ queryKey: ["historique-loyers"] });
       setPaying(null);
       setMontant("");
       setObs("");
@@ -87,16 +61,9 @@ function Page() {
     }
   }
 
-  function openPay(r: LoyerRow) {
-    setPaying(r);
-    setMontant(String(r.reste));
-    setDatePaiement(new Date().toISOString().slice(0, 10));
-    setObs("");
-  }
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold">Loyers - Historique complet</h1>
+      <h1 className="text-3xl font-bold">Historique des Loyers</h1>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
@@ -111,76 +78,71 @@ function Page() {
         ].map((s, i) => (
           <Card key={i} className="p-4">
             <p className="text-sm text-muted-foreground">{s.label}</p>
-            <p className={`text-2xl font-bold font-mono ${s.cls || ""}`}>{s.val}</p>
+            <p className={`text-2xl font-bold ${s.cls || ""}`}>{s.val}</p>
           </Card>
         ))}
       </div>
 
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-muted/50 text-xs uppercase text-muted-foreground">
-                <th className="px-4 py-3 text-left">Locataire</th>
-                <th className="px-4 py-3 text-left">Propriété</th>
-                <th className="px-4 py-3 text-left">Période</th>
-                <th className="px-4 py-3 text-right">Montant</th>
-                <th className="px-4 py-3 text-right">Payé</th>
-                <th className="px-4 py-3 text-right">Reste</th>
-                <th className="px-4 py-3 text-center">Statut</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {loyers.map((r: LoyerRow) => (
-                <tr key={r.id} className="border-b hover:bg-muted/30">
-                  <td className="px-4 py-3 font-medium">
-                    {r.contrat?.locataire
-                      ? `${r.contrat.locataire.prenom} ${r.contrat.locataire.nom}`
-                      : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{r.contrat?.propriete?.nom}</td>
-                  <td className="px-4 py-3 font-mono text-sm">{formatPeriode(r.periode)}</td>
-                  <td className="px-4 py-3 text-right font-mono">{formatFCFA(r.montant)}</td>
-                  <td className="px-4 py-3 text-right font-mono text-green-600">
-                    {formatFCFA(r.montant_paye)}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono text-red-600">
-                    {formatFCFA(r.reste)}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <StatutBadge statut={r.statut} />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {r.statut !== "paye" && (
-                      <Button size="sm" variant="outline" onClick={() => openPay(r)}>
-                        <Banknote className="mr-2 h-4 w-4" />
-                        Payer
-                      </Button>
-                    )}
-                  </td>
+        {isLoading ? (
+          <div className="p-12 text-center">Chargement de l'historique...</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-muted text-xs uppercase tracking-wider text-muted-foreground">
+                  <th className="px-4 py-3 text-left">Locataire</th>
+                  <th className="px-4 py-3 text-left">Propriété</th>
+                  <th className="px-4 py-3 text-left">Période</th>
+                  <th className="px-4 py-3 text-right">Montant</th>
+                  <th className="px-4 py-3 text-center">Statut</th>
+                  <th className="px-4 py-3"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {loyers.map((r: any) => (
+                  <tr key={r.id} className="border-b hover:bg-muted/50">
+                    <td className="px-4 py-3 font-medium">
+                      {r.contrat?.locataire?.prenom} {r.contrat?.locataire?.nom}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{r.contrat?.propriete?.nom}</td>
+                    <td className="px-4 py-3 font-mono">{formatPeriode(r.periode)}</td>
+                    <td className="px-4 py-3 text-right font-mono">{formatFCFA(r.montant)}</td>
+                    <td className="px-4 py-3 text-center">
+                      <StatutBadge statut={r.statut} />
+                      {r.isVirtual && <span className="text-blue-500 text-xs ml-2">(Avance)</span>}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {r.statut !== "paye" && (
+                        <Button size="sm" onClick={() => setPaying(r)}>
+                          <Banknote className="mr-2 h-4 w-4" />
+                          Payer
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
 
       {/* Dialog Paiement */}
       <Dialog open={!!paying} onOpenChange={() => setPaying(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Paiement Loyer</DialogTitle>
+            <DialogTitle>Enregistrer un paiement - Loyer</DialogTitle>
           </DialogHeader>
           {paying && (
-            <div className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground">
               {paying.contrat?.locataire?.prenom} {paying.contrat?.locataire?.nom} —{" "}
               {formatPeriode(paying.periode)}
-            </div>
+            </p>
           )}
           <form onSubmit={handlePay} className="space-y-4">
             <div>
-              <Label>Montant à payer</Label>
+              <Label>Montant à payer (FCFA)</Label>
               <Input
                 type="number"
                 value={montant}
@@ -201,7 +163,7 @@ function Page() {
               <Input
                 value={obs}
                 onChange={(e) => setObs(e.target.value)}
-                placeholder="Ex: paiement avance..."
+                placeholder="Paiement avance, etc."
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -209,7 +171,7 @@ function Page() {
                 Annuler
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? "Enregistrement..." : "Enregistrer"}
+                Enregistrer
               </Button>
             </div>
           </form>
@@ -220,5 +182,11 @@ function Page() {
 }
 
 function StatutBadge({ statut }: { statut: string }) {
-  // même composant que avant
+  if (statut === "paye")
+    return <span className="px-3 py-1 rounded-full text-xs bg-green-100 text-green-700">Payé</span>;
+  if (statut === "partiel")
+    return (
+      <span className="px-3 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700">Partiel</span>
+    );
+  return <span className="px-3 py-1 rounded-full text-xs bg-red-100 text-red-700">Impayé</span>;
 }
