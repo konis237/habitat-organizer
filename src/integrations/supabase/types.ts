@@ -76,35 +76,44 @@ export type Database = {
       }
       factures_eau: {
         Row: {
+          ancien_index: number | null
           contrat_id: string
           created_at: string
           date_echeance: string
           id: string
           montant: number
           montant_paye: number
+          nouveau_index: number | null
           periode: string
+          prix_unitaire: number | null
           reste: number | null
           statut: string
         }
         Insert: {
+          ancien_index?: number | null
           contrat_id: string
           created_at?: string
           date_echeance: string
           id?: string
           montant: number
           montant_paye?: number
+          nouveau_index?: number | null
           periode: string
+          prix_unitaire?: number | null
           reste?: number | null
           statut?: string
         }
         Update: {
+          ancien_index?: number | null
           contrat_id?: string
           created_at?: string
           date_echeance?: string
           id?: string
           montant?: number
           montant_paye?: number
+          nouveau_index?: number | null
           periode?: string
+          prix_unitaire?: number | null
           reste?: number | null
           statut?: string
         }

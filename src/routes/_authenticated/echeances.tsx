@@ -100,15 +100,22 @@ function EcheanceTable({ rows, highlight }: { rows: Row[]; highlight?: boolean }
           <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b">
             <th className="px-4 py-2">Type</th>
             <th className="px-4 py-2">Locataire</th>
-            <th className="px-4 py-2">Propriété</th>
-            <th className="px-4 py-2">Période</th>
+            <th className="px-4 py-2 hidden md:table-cell">Propriété</th>
+            <th className="px-4 py-2 hidden sm:table-cell">Période</th>
             <th className="px-4 py-2 text-right">Reste</th>
-            <th className="px-4 py-2">Échéance</th>
-            <th className="px-4 py-2">Statut</th>
+            <th className="px-4 py-2 hidden sm:table-cell">Échéance</th>
+            <th className="px-4 py-2">Délai</th>
+            <th className="px-4 py-2 hidden md:table-cell">Statut</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
+          {rows.map((r) => {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const d = new Date(r.date_echeance); d.setHours(0, 0, 0, 0);
+            const j = Math.round((d.getTime() - today.getTime()) / 86400000);
+            const joursLabel = j < 0 ? `${Math.abs(j)}j retard` : j === 0 ? "Aujourd'hui" : `${j}j restants`;
+            const joursCls = j < 0 ? "bg-destructive/15 text-destructive" : j <= 7 ? "bg-warning/15 text-warning" : "bg-muted text-muted-foreground";
+            return (
             <tr key={`${r.type}-${r.id}`} className={`border-b border-border/50 hover:bg-muted/30 ${highlight ? "bg-destructive/5" : ""}`}>
               <td className="px-4 py-2">
                 <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
@@ -116,17 +123,18 @@ function EcheanceTable({ rows, highlight }: { rows: Row[]; highlight?: boolean }
                 }`}>{r.type === "loyer" ? "Loyer" : "Eau"}</span>
               </td>
               <td className="px-4 py-2 font-medium">{r.contrat?.locataire ? `${r.contrat.locataire.prenom} ${r.contrat.locataire.nom}` : "—"}</td>
-              <td className="px-4 py-2 text-muted-foreground">{r.contrat?.propriete?.nom ?? "—"}</td>
-              <td className="px-4 py-2 text-muted-foreground">{formatPeriode(r.periode)}</td>
+              <td className="px-4 py-2 text-muted-foreground hidden md:table-cell">{r.contrat?.propriete?.nom ?? "—"}</td>
+              <td className="px-4 py-2 text-muted-foreground hidden sm:table-cell">{formatPeriode(r.periode)}</td>
               <td className="px-4 py-2 text-right font-mono">{formatFCFA(Number(r.reste))}</td>
-              <td className="px-4 py-2 text-muted-foreground">{formatDate(r.date_echeance)}</td>
-              <td className="px-4 py-2">
+              <td className="px-4 py-2 text-muted-foreground hidden sm:table-cell">{formatDate(r.date_echeance)}</td>
+              <td className="px-4 py-2"><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${joursCls}`}>{joursLabel}</span></td>
+              <td className="px-4 py-2 hidden md:table-cell">
                 <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
                   r.statut === "partiel" ? "bg-warning/15 text-warning" : "bg-destructive/15 text-destructive"
                 }`}>{r.statut === "partiel" ? "Partiel" : "Impayé"}</span>
               </td>
             </tr>
-          ))}
+          );})}
         </tbody>
       </table>
     </div>
