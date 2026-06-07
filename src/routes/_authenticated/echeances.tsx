@@ -100,11 +100,12 @@ function EcheanceTable({ rows, highlight }: { rows: Row[]; highlight?: boolean }
           <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b">
             <th className="px-4 py-2">Type</th>
             <th className="px-4 py-2">Locataire</th>
-            <th className="px-4 py-2">Propriété</th>
-            <th className="px-4 py-2">Période</th>
+            <th className="px-4 py-2 hidden md:table-cell">Propriété</th>
+            <th className="px-4 py-2 hidden sm:table-cell">Période</th>
             <th className="px-4 py-2 text-right">Reste</th>
-            <th className="px-4 py-2">Échéance</th>
-            <th className="px-4 py-2">Statut</th>
+            <th className="px-4 py-2 hidden sm:table-cell">Échéance</th>
+            <th className="px-4 py-2">Délai</th>
+            <th className="px-4 py-2 hidden md:table-cell">Statut</th>
           </tr>
         </thead>
         <tbody>
