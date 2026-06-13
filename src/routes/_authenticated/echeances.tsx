@@ -369,7 +369,7 @@ type Row = {
   id: string;
   type: "loyer" | "eau";
   periode: string;
-  reste: number;
+  reste: number | null;
   date_echeance: string;
   statut: string;
   contrat: {
