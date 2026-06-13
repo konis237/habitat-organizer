@@ -45,7 +45,7 @@ function AuthPage() {
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2">
-            <div className="h-8 w-8 rounded bg-primary grid place-items-center text-primary-foreground font-bold">L</div>
+            <div className="h-9 w-9 rounded-lg bg-foreground grid place-items-center text-background font-bold">L</div>
             <span className="text-lg font-semibold tracking-tight">LocaDesk</span>
           </div>
           <h1 className="text-2xl font-bold">{mode === "signin" ? "Connexion administrateur" : "Créer le compte admin"}</h1>
